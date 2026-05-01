@@ -1,6 +1,8 @@
 """Tests for Primo PNX model parsing."""
+from __future__ import annotations
 
-from primo_mcp_server.models import PrimoRecord, SearchResponse
+from primo_mcp_server.models import PrimoRecord
+from primo_mcp_server.models import SearchResponse
 
 
 class TestSearchResponse:
@@ -17,7 +19,7 @@ class TestSearchResponse:
     def test_record_has_title(self, search_results_data):
         response = SearchResponse.from_api_response(search_results_data)
         for record in response.records:
-            assert record.title != ""
+            assert record.title != ''
 
     def test_record_has_creators(self, search_results_data):
         response = SearchResponse.from_api_response(search_results_data)
@@ -27,12 +29,12 @@ class TestSearchResponse:
     def test_record_has_type(self, search_results_data):
         response = SearchResponse.from_api_response(search_results_data)
         for record in response.records:
-            assert record.resource_type == "article"
+            assert record.resource_type == 'article'
 
     def test_record_has_record_id(self, search_results_data):
         response = SearchResponse.from_api_response(search_results_data)
         for record in response.records:
-            assert record.record_id != ""
+            assert record.record_id != ''
 
     def test_peer_reviewed_detected(self, search_results_data):
         response = SearchResponse.from_api_response(search_results_data)
@@ -44,26 +46,26 @@ class TestPrimoRecord:
     def test_from_minimal_doc(self):
         """Test parsing with minimal/missing fields."""
         doc = {
-            "pnx": {
-                "display": {"title": ["Test Title"]},
-                "control": {"recordid": ["test123"]},
-            }
+            'pnx': {
+                'display': {'title': ['Test Title']},
+                'control': {'recordid': ['test123']},
+            },
         }
         record = PrimoRecord.from_api_doc(doc)
-        assert record.title == "Test Title"
-        assert record.record_id == "test123"
+        assert record.title == 'Test Title'
+        assert record.record_id == 'test123'
         assert record.creators == []
-        assert record.doi == ""
+        assert record.doi == ''
 
     def test_doi_extraction(self):
         doc = {
-            "pnx": {
-                "display": {
-                    "title": ["Test"],
-                    "identifier": ["ISSN: 1234-5678", "DOI: 10.1234/test"],
+            'pnx': {
+                'display': {
+                    'title': ['Test'],
+                    'identifier': ['ISSN: 1234-5678', 'DOI: 10.1234/test'],
                 },
-                "control": {"recordid": ["test"]},
-            }
+                'control': {'recordid': ['test']},
+            },
         }
         record = PrimoRecord.from_api_doc(doc)
-        assert record.doi == "10.1234/test"
+        assert record.doi == '10.1234/test'

@@ -1,20 +1,18 @@
 """FastMCP server exposing Primo library search tools."""
-
 from __future__ import annotations
 
+from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
-from typing import AsyncIterator
 
 import httpx
-from mcp.server.fastmcp import Context, FastMCP
-
-from primo_mcp_server.client import PrimoAPIError, PrimoClient
+from mcp.server.fastmcp import Context
+from mcp.server.fastmcp import FastMCP
+from primo_mcp_server.client import PrimoAPIError
+from primo_mcp_server.client import PrimoClient
 from primo_mcp_server.config import PrimoConfig
-from primo_mcp_server.formatter import (
-    format_record_detail,
-    format_search_results,
-    format_suggestions,
-)
+from primo_mcp_server.formatter import format_record_detail
+from primo_mcp_server.formatter import format_search_results
+from primo_mcp_server.formatter import format_suggestions
 
 
 @asynccontextmanager
@@ -24,21 +22,21 @@ async def app_lifespan(server: FastMCP) -> AsyncIterator[dict]:
     async with httpx.AsyncClient(
         base_url=config.base_url,
         timeout=config.request_timeout,
-        headers={"User-Agent": config.user_agent},
+        headers={'User-Agent': config.user_agent},
     ) as http_client:
         client = PrimoClient(http_client, config)
-        yield {"client": client, "config": config}
+        yield {'client': client, 'config': config}
 
 
 mcp = FastMCP(
-    "primo",
+    'primo',
     instructions=(
-        "Search university library catalogues and subscribed databases "
-        "(ProQuest, Elsevier, Crossref, Gale, Springer, IEEE, etc.) "
-        "via the Ex Libris Primo discovery API. "
-        "Use primo_search for queries, primo_get_record for full details, "
-        "primo_suggest for autocomplete, primo_cite for citations, "
-        "and primo_export for BibTeX/RIS/CSV export."
+        'Search university library catalogues and subscribed databases '
+        '(ProQuest, Elsevier, Crossref, Gale, Springer, IEEE, etc.) '
+        'via the Ex Libris Primo discovery API. '
+        'Use primo_search for queries, primo_get_record for full details, '
+        'primo_suggest for autocomplete, primo_cite for citations, '
+        'and primo_export for BibTeX/RIS/CSV export.'
     ),
     lifespan=app_lifespan,
 )
@@ -46,7 +44,7 @@ mcp = FastMCP(
 
 def _get_client(ctx: Context) -> PrimoClient:
     """Extract the PrimoClient from the lifespan context."""
-    return ctx.request_context.lifespan_context["client"]
+    return ctx.request_context.lifespan_context['client']
 
 
 # ---------------------------------------------------------------------------
@@ -57,9 +55,9 @@ def _get_client(ctx: Context) -> PrimoClient:
 async def primo_search(
     ctx: Context,
     query: str,
-    field: str = "any",
-    scope: str = "everything",
-    sort_by: str = "rank",
+    field: str = 'any',
+    scope: str = 'everything',
+    sort_by: str = 'rank',
     limit: int = 10,
     offset: int = 0,
     resource_type: str | None = None,
@@ -100,9 +98,9 @@ async def primo_search(
         )
         return format_search_results(response, query, offset)
     except PrimoAPIError as e:
-        return f"Error searching Primo: {e}"
+        return f'Error searching Primo: {e}'
     except Exception as e:
-        return f"Unexpected error: {e}"
+        return f'Unexpected error: {e}'
 
 
 # ---------------------------------------------------------------------------
@@ -128,14 +126,14 @@ async def primo_get_record(ctx: Context, record_id: str) -> str:
         if record is None:
             return (
                 f'Record "{record_id}" not found. '
-                "It may have been removed, or the ID may be incorrect. "
-                "Try searching again with primo_search."
+                'It may have been removed, or the ID may be incorrect. '
+                'Try searching again with primo_search.'
             )
         return format_record_detail(record)
     except PrimoAPIError as e:
-        return f"Error fetching record: {e}"
+        return f'Error fetching record: {e}'
     except Exception as e:
-        return f"Unexpected error: {e}"
+        return f'Unexpected error: {e}'
 
 
 # ---------------------------------------------------------------------------
@@ -160,9 +158,9 @@ async def primo_suggest(ctx: Context, query: str) -> str:
         suggestions = await client.suggest(query)
         return format_suggestions(suggestions, query)
     except PrimoAPIError as e:
-        return f"Error getting suggestions: {e}"
+        return f'Error getting suggestions: {e}'
     except Exception as e:
-        return f"Unexpected error: {e}"
+        return f'Unexpected error: {e}'
 
 
 # ---------------------------------------------------------------------------
@@ -173,7 +171,7 @@ async def primo_suggest(ctx: Context, query: str) -> str:
 async def primo_cite(
     ctx: Context,
     record_ids: list[str],
-    style: str = "apa7",
+    style: str = 'apa7',
 ) -> str:
     """Generate formatted citations for library records.
 
@@ -187,7 +185,7 @@ async def primo_cite(
     try:
         from primo_mcp_server.citations import format_citation
 
-        valid_styles = {"apa7", "harvard", "chicago", "ieee", "vancouver"}
+        valid_styles = {'apa7', 'harvard', 'chicago', 'ieee', 'vancouver'}
         if style not in valid_styles:
             return f'Invalid citation style "{style}". Use one of: {", ".join(sorted(valid_styles))}'
 
@@ -195,19 +193,19 @@ async def primo_cite(
         records = await client.get_records(record_ids)
 
         if not records:
-            return "No records found for the provided IDs."
+            return 'No records found for the provided IDs.'
 
         citations = []
         for record in records:
             citations.append(format_citation(record, style))
 
-        result = "\n\n".join(citations)
-        result += "\n\n-- Note: verify citations before submission. Automated formatting may not cover all edge cases."
+        result = '\n\n'.join(citations)
+        result += '\n\n-- Note: verify citations before submission. Automated formatting may not cover all edge cases.'
         return result
     except PrimoAPIError as e:
-        return f"Error fetching records for citation: {e}"
+        return f'Error fetching records for citation: {e}'
     except Exception as e:
-        return f"Unexpected error: {e}"
+        return f'Unexpected error: {e}'
 
 
 # ---------------------------------------------------------------------------
@@ -218,7 +216,7 @@ async def primo_cite(
 async def primo_export(
     ctx: Context,
     record_ids: list[str],
-    format: str = "bibtex",
+    format: str = 'bibtex',
 ) -> str:
     """Export library records to reference manager formats.
 
@@ -232,7 +230,7 @@ async def primo_export(
     try:
         from primo_mcp_server.exporters import export_bibtex, export_csv, export_ris
 
-        valid_formats = {"bibtex", "ris", "csv"}
+        valid_formats = {'bibtex', 'ris', 'csv'}
         if format not in valid_formats:
             return f'Invalid format "{format}". Use one of: {", ".join(sorted(valid_formats))}'
 
@@ -240,15 +238,15 @@ async def primo_export(
         records = await client.get_records(record_ids)
 
         if not records:
-            return "No records found for the provided IDs."
+            return 'No records found for the provided IDs.'
 
-        if format == "bibtex":
+        if format == 'bibtex':
             return export_bibtex(records)
-        elif format == "ris":
+        elif format == 'ris':
             return export_ris(records)
         else:
             return export_csv(records)
     except PrimoAPIError as e:
-        return f"Error fetching records for export: {e}"
+        return f'Error fetching records for export: {e}'
     except Exception as e:
-        return f"Unexpected error: {e}"
+        return f'Unexpected error: {e}'
