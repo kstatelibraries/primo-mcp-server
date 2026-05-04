@@ -17,6 +17,24 @@ class PrimoAPIError(Exception):
         super().__init__(message)
 
 
+def _normalize_record_id(record_id: str) -> str:
+    """Strip source system prefix from record ID.
+
+    For Alma records, removes the 'alma' prefix.
+    For CDI records, keeps the full ID.
+
+    Examples:
+        'alma9933212933402401' -> '9933212933402401'
+        'cdi_proquest_ebookcentral_EBC6170646' -> 'cdi_proquest_ebookcentral_EBC6170646'
+    """
+    # Remove common Alma prefix
+    if record_id.startswith('alma'):
+        return record_id[4:]
+
+    # Keep CDI and other prefixes as-is for display
+    return record_id
+
+
 class PrimoClient:
     """Async client for the Ex Libris Primo public API."""
 
@@ -104,23 +122,30 @@ class PrimoClient:
 
         Searches by the record ID and returns the first matching result.
         Returns None if not found.
+
+        Args:
+            record_id: The record ID with or without source prefix (e.g., '9933212933402401' or 'alma9933212933402401').
         """
+        # Normalize the record ID by stripping source prefix
+        normalized_id = _normalize_record_id(record_id)
+
         cfg = self._config
         params: dict[str, Any] = {
             'vid': cfg.vid,
             'tab': cfg.tab_everything,
             'scope': cfg.scope_combined,
-            'q': f'any,contains,{record_id}',
+            'q': f'any,contains,{normalized_id}',
             'offset': '0',
             'limit': '5',
             'lang': cfg.language,
+            'pcAvailability': 'true',
         }
         data = await self._get('/pnxs', params=params)
         response = SearchResponse.from_api_response(data)
 
-        # Find exact match by record_id
+        # Find exact match by normalized record_id
         for record in response.records:
-            if record.record_id == record_id:
+            if _normalize_record_id(record.record_id) == normalized_id:
                 return record
 
         # If no exact match, return the first result (may be a partial match)
@@ -142,7 +167,11 @@ class PrimoClient:
         return [doc.get('text', '') for doc in docs if doc.get('text')]
 
     async def get_records(self, record_ids: list[str]) -> list[PrimoRecord]:
-        """Fetch multiple records by their IDs."""
+        """Fetch multiple records by their IDs.
+
+        Args:
+            record_ids: List of record IDs with or without source prefix.
+        """
         records = []
         for rid in record_ids:
             record = await self.get_record(rid)

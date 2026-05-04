@@ -5,6 +5,24 @@ from primo_mcp_server.models import PrimoRecord
 from primo_mcp_server.models import SearchResponse
 
 
+def _normalize_record_id(record_id: str) -> str:
+    """Strip source system prefix from record ID for display and API use.
+
+    For Alma records, removes the 'alma' prefix.
+    For CDI records, keeps the full ID.
+
+    Examples:
+        'alma9933212933402401' -> '9933212933402401'
+        'cdi_proquest_ebookcentral_EBC6170646' -> 'cdi_proquest_ebookcentral_EBC6170646'
+    """
+    # Remove common Alma prefix
+    if record_id.startswith('alma'):
+        return record_id[4:]
+
+    # Keep CDI and other prefixes as-is for display
+    return record_id
+
+
 def _format_authors(creators: list[str], max_authors: int = 3) -> str:
     """Format an author list, truncating with 'et al.' if needed."""
     if not creators:
@@ -96,7 +114,7 @@ def format_search_results(response: SearchResponse, query: str, offset: int = 0)
             status_parts.append('Peer-reviewed')
         status_parts.append(_format_availability(record))
         lines.append(f"    {' | '.join(status_parts)}")
-        lines.append(f'    Record ID: {record.record_id}')
+        lines.append(f'    Record ID: {_normalize_record_id(record.record_id)}')
         lines.append('')
 
     return '\n'.join(lines).rstrip()
@@ -161,7 +179,7 @@ def format_record_detail(record: PrimoRecord) -> str:
     if record.source_label:
         lines.append(f'Source: {record.source_label}')
 
-    lines.append(f'Record ID: {record.record_id}')
+    lines.append(f'Record ID: {_normalize_record_id(record.record_id)}')
 
     return '\n'.join(lines)
 

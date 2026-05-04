@@ -25,6 +25,24 @@ def _first_or_empty(v: str | list[str] | None) -> str:
     return items[0] if items else ''
 
 
+def _normalize_record_id(record_id: str) -> str:
+    """Strip source system prefix from record ID.
+
+    For Alma records, removes the 'alma' prefix.
+    For CDI records, keeps the full ID.
+
+    Examples:
+        'alma9933212933402401' -> '9933212933402401'
+        'cdi_proquest_ebookcentral_EBC6170646' -> 'cdi_proquest_ebookcentral_EBC6170646'
+    """
+    # Remove common Alma prefix
+    if record_id.startswith('alma'):
+        return record_id[4:]
+
+    # Keep CDI and other prefixes as-is for display
+    return record_id
+
+
 class PrimoRecord(BaseModel):
     """A normalised Primo catalogue record."""
 
