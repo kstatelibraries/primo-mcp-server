@@ -51,7 +51,7 @@ def _format_availability(record: PrimoRecord) -> str:
         parts.append('Full text available')
     if record.delivery_category:
         parts.append(record.delivery_category)
-    return ' | '.join(parts) if parts else 'Check availability in OneSearch'
+    return ' | '.join(parts) if parts else 'Check availability in Search It'
 
 
 def format_search_results(response: SearchResponse, query: str, offset: int = 0) -> str:
