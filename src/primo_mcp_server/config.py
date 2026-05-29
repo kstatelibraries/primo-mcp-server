@@ -47,4 +47,4 @@ class PrimoConfig:
     max_results_per_request: int = int(os.environ['PRIMO_MAX_RESULTS_PER_REQUEST'])
     default_results: int = int(os.environ['PRIMO_DEFAULT_RESULTS'])
     language: str = os.environ['PRIMO_LANGUAGE']
-    user_agent: str = 'primo-mcp-server/0.1.0'
+    user_agent: str = 'primo-mcp-server/1.0.0'
