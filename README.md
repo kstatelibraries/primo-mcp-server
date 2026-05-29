@@ -37,13 +37,13 @@ Restart Claude Code. The tools will appear as `mcp__primo__primo_search`, etc.
 
 ## Tools
 
-| Tool | Description |
-|------|-------------|
-| `primo_search` | Search the library catalogue with filters (type, date, peer-reviewed) |
-| `primo_get_record` | Get full details for a record by ID |
-| `primo_suggest` | Autocomplete search suggestions |
-| `primo_cite` | Generate formatted citations (APA7, Harvard, Chicago, IEEE, Vancouver) |
-| `primo_export` | Export records as BibTeX, RIS, or CSV |
+| Tool               | Description                                                            |
+| ------------------ | ---------------------------------------------------------------------- |
+| `primo_search`     | Search the library catalogue with filters (type, date, peer-reviewed)  |
+| `primo_get_record` | Get full details for a record by ID                                    |
+| `primo_suggest`    | Autocomplete search suggestions                                        |
+| `primo_cite`       | Generate formatted citations (APA7, Harvard, Chicago, IEEE, Vancouver) |
+| `primo_export`     | Export records as BibTeX, RIS, or CSV                                  |
 
 ## Usage Examples
 
@@ -56,18 +56,36 @@ From a Claude Code conversation:
 
 ## Configuration
 
-Defaults are set for UWA (University of Western Australia). Override via environment variables:
+This application **requires a `.env` file** to initialize. All hardcoded defaults have been removed. If any required environment variable is missing, the server will fail to start with a clear  
+ initialization error.
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `PRIMO_BASE_URL` | `https://onesearch.library.uwa.edu.au/primaws/rest/pub` | Primo API base URL |
-| `PRIMO_VID` | `61UWA_INST:NDE_UWA` | Primo View ID |
-| `PRIMO_INSTITUTION_NAME` | `UWA` | Display name |
-| `PRIMO_REQUEST_TIMEOUT` | `30.0` | HTTP timeout in seconds |
-| `PRIMO_MAX_RESULTS_PER_REQUEST` | `50` | Maximum results per search |
-| `PRIMO_DEFAULT_RESULTS` | `10` | Default results per search |
+### Setup
 
-See `.env.example` for the full list.
+1.  Copy the example file: `cp .env.example .env`
+2.  Open `.env` and update the values to match your institution's Primo VE configuration.  
+
+
+### Required Variables
+
+| Variable                        | Description                                       |
+| ------------------------------- | ------------------------------------------------- |
+| `PRIMO_BASE_URL`                | Primo REST API endpoint                           |
+| `PRIMO_VID`                     | Primo View ID                                     |
+| `PRIMO_INSTITUTION_NAME`        | Display name shown in responses                   |
+| `PRIMO_REQUEST_TIMEOUT`         | HTTP request timeout in seconds (e.g., `30.0`)    |
+| `PRIMO_MAX_RESULTS_PER_REQUEST` | Max results per API request (e.g., `50`)          |
+| `PRIMO_DEFAULT_RESULTS`         | Default number of results returned (e.g., `10`)   |
+| `PRIMO_TAB_EVERYTHING`          | Search tab identifier for "Everything"            |
+| `PRIMO_TAB_CATALOGUE`           | Search tab identifier for "Catalogue"             |
+| `PRIMO_SCOPE_COMBINED`          | Search scope identifier for combined/index search |
+| `PRIMO_SCOPE_LOCAL`             | Search scope identifier for local search          |
+| `PRIMO_LANGUAGE`                | Language code for search results (e.g., `en`)     |
+
+### Optional Variables
+
+| Variable           | Description                                                              |
+| ------------------ | ------------------------------------------------------------------------ |
+| `PRIMO_USER_AGENT` | HTTP User-Agent string (defaults to `primo-mcp-server/0.1.0` if omitted) |
 
 ## Running Tests
 
