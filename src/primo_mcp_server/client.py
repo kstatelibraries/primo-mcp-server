@@ -101,12 +101,7 @@ class PrimoClient:
         if resource_type:
             q_include.append(f'facet_rtype,exact,{resource_type}')
         if date_from and date_to:
-            # Primo uses individual year facets; for range we add each year
-            # Actually, Primo supports date range via creationdate facet
-            for year in range(int(date_from), int(date_to) + 1):
-                q_include.append(f'facet_creationdate,exact,{year}')
-        elif date_from:
-            q_include.append(f'facet_creationdate,exact,{date_from}')
+            q_include.append(f'facet_searchcreationdate,exact,[{date_from} TO {date_to}]')
         if peer_reviewed:
             q_include.append('facet_tlevel,exact,peer_reviewed')
 
