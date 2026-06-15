@@ -36,7 +36,10 @@ mcp = FastMCP(
         'via the Ex Libris Primo discovery API. '
         'Use primo_search for queries, primo_get_record for full details, '
         'primo_suggest for autocomplete, primo_cite for citations, '
-        'and primo_export for BibTeX/RIS/CSV export.'
+        'and primo_export for BibTeX/RIS/CSV export. '
+        'Tool results are pre-formatted as Markdown unordered lists for '
+        'WCAG 2.2 accessibility. Present them to the user as-is: never '
+        'convert them to tables, and never guess missing values ("N/A").'
     ),
     lifespan=app_lifespan,
 )

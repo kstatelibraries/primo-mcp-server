@@ -12,9 +12,11 @@ class TestFormatSearchResults:
         response = SearchResponse.from_api_response(search_results_data)
         output = format_search_results(response, 'entrepreneurship innovation')
         assert 'entrepreneurship innovation' in output
-        assert '[1]' in output
-        assert '[2]' in output
-        assert '[3]' in output
+        # Results must be WCAG 2.2 unordered lists, never numbered/tabular
+        assert output.count('- **Author(s):**') == 3
+        assert output.count('- **Year:**') == 3
+        assert output.count('- **Availability:**') == 3
+        assert '[1]' not in output
 
     def test_empty_results_message(self, empty_results_data):
         response = SearchResponse.from_api_response(empty_results_data)

@@ -45,6 +45,16 @@ Restart Claude Code. The tools will appear as `mcp__primo__primo_search`, etc.
 | `primo_cite`       | Generate formatted citations (APA7, Harvard, Chicago, IEEE, Vancouver) |
 | `primo_export`     | Export records as BibTeX, RIS, or CSV                                  |
 
+### Accessible Output
+
+Search and record results are emitted as Markdown unordered lists (never
+tables) for WCAG 2.2 accessibility. Each entry includes Author(s), Year,
+Title, Source/Publisher, Availability, and Record ID, with `N/A` for missing
+values rather than guesses. A presentation note is appended to each tool
+result instructing the consuming LLM to relay the structure verbatim, which
+works reliably even with small local models (e.g. via Ollama/Open WebUI)
+that ignore MCP server `instructions`.
+
 ## Usage Examples
 
 From a Claude Code conversation:
